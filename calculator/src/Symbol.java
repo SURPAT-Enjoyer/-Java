@@ -1,24 +1,19 @@
+import java.util.*;
+
 public enum Symbol {
     I(1),
-    II(2),
-    III(3),
     IV(4),
     V(5),
-    VI(6),
-    VII(7),
-    VIII(8),
     IX(9),
     X(10),
-    XI(11),
-    XII (12),
-    XIII(13),
-    XIV(14),
-    XV(15),
-    XVI(16),
-    XVII(17),
-    XVIII(18),
-    XIX(19),
-    XX(20);
+    XL(40),
+    L(50),
+    XC(90),
+    C(100),
+    CD(400),
+    D(500),
+    CM(900),
+    M(1000);
 
     private final int value;
 
@@ -30,31 +25,58 @@ public enum Symbol {
         return value;
     }
 
-    public static boolean contains(String value) {
-
-        for (Symbol s : Symbol.values()) {
-            if (s.name().equals(value)) {
-                return true;
-            }
+    public static boolean check(String value) {
+        try {
+            toArabic(value);
+        } catch (Exception e) {
+            return false;
         }
-        return false;
+        return true;
     }
 
-    public static Symbol parse(String value) throws Exception {
-        for (Symbol s : Symbol.values()) {
-            if (s.name().equals(value)) {
-                return s;
+    public static String toRoman(int value) throws Exception {
+        if ((value <= 0) || (value > 4000)) {
+            throw new Exception(value + " число не в диапазоне");
+        }
+        List<Symbol> romanNumerals = Arrays.asList(Symbol.values()) ;
+        Collections.reverse(romanNumerals);
+        int i = 0;
+        StringBuilder sb = new StringBuilder();
+        while ((value > 0) && (i < romanNumerals.size())) {
+            Symbol currentSymbol = romanNumerals.get(i);
+            if (currentSymbol.getValue() <= value) {
+                sb.append(currentSymbol.name());
+                value -= currentSymbol.getValue();
+            } else {
+                i++;
             }
         }
-        throw new Exception("Неверный формат римского числа");
+        return sb.toString();
     }
 
-    public static Symbol parse(int value) throws Exception {
-        for (Symbol s : Symbol.values()) {
-            if (s.getValue() == value) {
-                return s;
+    public static int toArabic(String input) throws Exception {
+        String romanNumeral = input.toUpperCase();
+        int result = 0;
+
+        List<Symbol> romanNumerals = Arrays.asList(Symbol.values()) ;
+        Collections.reverse(romanNumerals);
+
+        int i = 0;
+
+        while ((!romanNumeral.isEmpty()) && (i < romanNumerals.size())) {
+            Symbol symbol = romanNumerals.get(i);
+            if (romanNumeral.startsWith(symbol.name())) {
+                result += symbol.getValue();
+                romanNumeral = romanNumeral.substring(symbol.name().length());
+            } else {
+                i++;
             }
         }
-        throw new Exception("Неверный формат римского числа");
+
+        if (!romanNumeral.isEmpty()) {
+            throw new Exception(input + " невозможно сконвертировать в римское число");
+        }
+
+        return result;
     }
 }
